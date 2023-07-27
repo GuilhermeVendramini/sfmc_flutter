@@ -136,7 +136,7 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
         //     .sfmc_setAnalyticsEnabled((analyticsEnabled ?? true)  as NSNumber)
         //     .sfmc_build()!
 
-        guard let builder = PushConfigBuilder(appId: appId)
+        let builder = PushConfigBuilder(appId: appId)
             .setAccessToken(accessToken)
             .setMarketingCloudServerUrl(URL(string: appEndpoint)!)
             .setMid(mid)
@@ -144,7 +144,7 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
             .setInboxEnabled(inbox as NSNumber)
             .setLocationEnabled(location as NSNumber)
             .setAnalyticsEnabled(analytics as NSNumber)
-            .build()
+            .build()!
         
         //MarketingCloudSDK.sharedInstance().sfmc_setURLHandlingDelegate(self)
         SFMCSdk.mp.setURLHandlingDelegate(self)
