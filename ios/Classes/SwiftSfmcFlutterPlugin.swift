@@ -122,24 +122,38 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
     }
     
     public func setupSFMC(appId: String, accessToken: String, mid: String, sfmcURL: String, locationEnabled: Bool?, inboxEnabled: Bool?, analyticsEnabled: Bool?, delayRegistration: Bool?, onDone: (_ result: Bool, _ message: String?, _ code: Int?) -> Void) {
-        MarketingCloudSDK.sharedInstance().sfmc_tearDown()
+        //MarketingCloudSDK.sharedInstance().sfmc_tearDown()
+        SFMCSdk.mp.tearDown()
         
-        let builder = MarketingCloudSDKConfigBuilder()
-            .sfmc_setApplicationId(appId)
-            .sfmc_setAccessToken(accessToken)
-            .sfmc_setMarketingCloudServerUrl(sfmcURL)
-            .sfmc_setMid(mid)
-            .sfmc_setDelayRegistration(untilContactKeyIsSet: (delayRegistration ?? false) as NSNumber)
-            .sfmc_setInboxEnabled((inboxEnabled ?? true) as NSNumber)
-            .sfmc_setLocationEnabled((locationEnabled ?? true)  as NSNumber)
-            .sfmc_setAnalyticsEnabled((analyticsEnabled ?? true)  as NSNumber)
-            .sfmc_build()!
+        // let builder = MarketingCloudSDKConfigBuilder()
+        //     .sfmc_setApplicationId(appId)
+        //     .sfmc_setAccessToken(accessToken)
+        //     .sfmc_setMarketingCloudServerUrl(sfmcURL)
+        //     .sfmc_setMid(mid)
+        //     .sfmc_setDelayRegistration(untilContactKeyIsSet: (delayRegistration ?? false) as NSNumber)
+        //     .sfmc_setInboxEnabled((inboxEnabled ?? true) as NSNumber)
+        //     .sfmc_setLocationEnabled((locationEnabled ?? true)  as NSNumber)
+        //     .sfmc_setAnalyticsEnabled((analyticsEnabled ?? true)  as NSNumber)
+        //     .sfmc_build()!
+
+        guard let builder = PushConfigBuilder(appId: appId)
+            .setAccessToken(accessToken)
+            .setMarketingCloudServerUrl(URL(string: appEndpoint)!)
+            .setMid(mid)
+            .setDelayRegistrationUntilContactKeyIsSet((delayRegistration ?? false) as NSNumber)
+            .setInboxEnabled(inbox as NSNumber)
+            .setLocationEnabled(location as NSNumber)
+            .setAnalyticsEnabled(analytics as NSNumber)
+            .build()
         
-        MarketingCloudSDK.sharedInstance().sfmc_setURLHandlingDelegate(self)
-        MarketingCloudSDK.sharedInstance().sfmc_setEventDelegate(self)
+        //MarketingCloudSDK.sharedInstance().sfmc_setURLHandlingDelegate(self)
+        SFMCSdk.mp.setURLHandlingDelegate(self)
+        //MarketingCloudSDK.sharedInstance().sfmc_setEventDelegate(self)
+        SFMCSdk.mp.setEventDelegate(self)
 
         do {
-            try MarketingCloudSDK.sharedInstance().sfmc_configure(with:builder)
+            //try MarketingCloudSDK.sharedInstance().sfmc_configure(with:builder)
+            try SFMCSdk.initializeSdk(ConfigBuilder().setPush(config: builder).build())
             onDone(true, nil, nil);
         } catch let error as NSError {
             onDone(false, error.localizedDescription, error.code);
@@ -155,14 +169,17 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
             return true
         }
         
-        MarketingCloudSDK.sharedInstance().sfmc_setDeviceToken(data!)
+        //MarketingCloudSDK.sharedInstance().sfmc_setDeviceToken(data!)
+        SFMCSdk.mp.setDeviceToken(data!)
         return true
     }
     public func getDeviceToken() -> String? {
-        return MarketingCloudSDK.sharedInstance().sfmc_deviceToken()
+        //return MarketingCloudSDK.sharedInstance().sfmc_deviceToken()
+        return SFMCSdk.mp.deviceToken()
     }
     public func getDeviceIdentifier() -> String? {
-        return MarketingCloudSDK.sharedInstance().sfmc_deviceIdentifier()
+        //return MarketingCloudSDK.sharedInstance().sfmc_deviceIdentifier()
+        return SFMCSdk.mp.deviceIdentifier()
     }
     
     
@@ -170,7 +187,8 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      * Contact Key Management
      */
     public func setContactKey(contactKey: String) -> Bool? {
-        MarketingCloudSDK.sharedInstance().sfmc_setContactKey(contactKey)
+        //MarketingCloudSDK.sharedInstance().sfmc_setContactKey(contactKey)
+        SFMCSdk.identity.setProfileId(contactKey)
         return true
     }
     
@@ -179,27 +197,32 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      * Attribute Management
      */
     public func setAttribute(name: String, value: Any) -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_setAttributeNamed(name, value: "\(value)")
+        //MarketingCloudSDK.sharedInstance().sfmc_setAttributeNamed(name, value: "\(value)")
+        SFMCSdk.identity.setProfileAttribute(name: "\(value)")
         return true
     }
     public func clearAttribute(name: String) -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_clearAttributeNamed(name)
+        //MarketingCloudSDK.sharedInstance().sfmc_clearAttributeNamed(name)
+        SFMCSdk.identity.clearProfileAttribute(name)
         
         return true
     }
     public func attributes() -> [String: String] {
-        return  (MarketingCloudSDK.sharedInstance().sfmc_attributes() ?? [:]) as! [String : String]
+        //return  (MarketingCloudSDK.sharedInstance().sfmc_attributes() ?? [:]) as! [String : String]
+        return (SFMCSdk.identity.attributes() ?? [:]) as! [String : String]
     }
     
     /*
      * TAG Management
      */
     public func setTag(tag: String) -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_addTag(tag)
+        //MarketingCloudSDK.sharedInstance().sfmc_addTag(tag)
+        SFMCSdk.identity.addTag(tag)
         return true
     }
     public func removeTag(tag: String) -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_removeTag(tag)
+        //MarketingCloudSDK.sharedInstance().sfmc_removeTag(tag)
+        SFMCSdk.identity.removeTag(tag)
         return true
     }
     public func tags() -> [String] {
@@ -211,7 +234,8 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      * Verbose Management
      */
     public func setupVerbose(status: Bool) -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_setDebugLoggingEnabled(status)
+        //MarketingCloudSDK.sharedInstance().sfmc_setDebugLoggingEnabled(status)
+        SFMCSdk.identity.setDebugLoggingEnabled(status)
         return true
     }
     
@@ -219,34 +243,40 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      * Verbose Management
      */
     public func pushEnabled() -> Bool {
-        return MarketingCloudSDK.sharedInstance().sfmc_pushEnabled()
+        //return MarketingCloudSDK.sharedInstance().sfmc_pushEnabled()
+        return SFMCSdk.identity.pushEnabled()
     }
 
     public func setPushEnabled(status: Bool) -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_setPushEnabled(status)
+        //MarketingCloudSDK.sharedInstance().sfmc_setPushEnabled(status)
+        return SFMCSdk.identity.setPushEnabled(status)
         return true
     }
 
     public func getPushToken() -> String? {
-        return MarketingCloudSDK.sharedInstance().sfmc_deviceToken()
+        //return MarketingCloudSDK.sharedInstance().sfmc_deviceToken()
+        return SFMCSdk.identity.deviceToken()
     }
     
     /*
      * SDKState Management
      */
     public func getSDKState() -> String {
-        return "SDK State = \(MarketingCloudSDK.sharedInstance().sfmc_getSDKState() ?? "SDK State is nil")"
+        return "TODO: getSDKState() Not implemented"
+        //return "SDK State = \(MarketingCloudSDK.sharedInstance().sfmc_getSDKState() ?? "SDK State is nil")"
     }
     
     /*
      * Location
      */
     public func enableLocationWatching() -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_startWatchingLocation()
+        //MarketingCloudSDK.sharedInstance().sfmc_startWatchingLocation()
+        SFMCSdk.identity.startWatchingLocation()
         return true;
     }
     public func disableLocationWatching() -> Bool {
-        MarketingCloudSDK.sharedInstance().sfmc_stopWatchingLocation()
+        //MarketingCloudSDK.sharedInstance().sfmc_stopWatchingLocation()
+        SFMCSdk.identity.stopWatchingLocation()
         return true;
     }
 
