@@ -136,20 +136,20 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
         //     .sfmc_setAnalyticsEnabled((analyticsEnabled ?? true)  as NSNumber)
         //     .sfmc_build()!
 
-        let builder = PushConfigBuilder(appId: appId)
+       let builder = PushConfigBuilder(appId: appId)
             .setAccessToken(accessToken)
-            .setMarketingCloudServerUrl(URL(string: appEndpoint)!)
+            .setMarketingCloudServerUrl(URL(string: sfmcURL)!)
             .setMid(mid)
-            .setDelayRegistrationUntilContactKeyIsSet((delayRegistration ?? false) as NSNumber)
-            .setInboxEnabled(inbox as NSNumber)
-            .setLocationEnabled(location as NSNumber)
-            .setAnalyticsEnabled(analytics as NSNumber)
-            .build()!
+            .setDelayRegistrationUntilContactKeyIsSet(delayRegistration ?? false)
+            .setInboxEnabled(inboxEnabled ?? true)
+            .setLocationEnabled(locationEnabled ?? true)
+            .setAnalyticsEnabled(analyticsEnabled ?? true)
+            .build()
         
         //MarketingCloudSDK.sharedInstance().sfmc_setURLHandlingDelegate(self)
-        SFMCSdk.mp.setURLHandlingDelegate(self)
+        // SFMCSdk.mp.setURLHandlingDelegate(self)
         //MarketingCloudSDK.sharedInstance().sfmc_setEventDelegate(self)
-        SFMCSdk.mp.setEventDelegate(self)
+        // SFMCSdk.mp.setEventDelegate(self)
 
         do {
             //try MarketingCloudSDK.sharedInstance().sfmc_configure(with:builder)
@@ -198,18 +198,18 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      */
     public func setAttribute(name: String, value: Any) -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_setAttributeNamed(name, value: "\(value)")
-        SFMCSdk.identity.setProfileAttribute(name: "\(value)")
+        SFMCSdk.identity.setProfileAttribute(name, "\(value)")
         return true
     }
     public func clearAttribute(name: String) -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_clearAttributeNamed(name)
-        SFMCSdk.identity.clearProfileAttribute(name)
+        SFMCSdk.identity.clearProfileAttribute(key: name)
         
         return true
     }
     public func attributes() -> [String: String] {
         //return  (MarketingCloudSDK.sharedInstance().sfmc_attributes() ?? [:]) as! [String : String]
-        return (SFMCSdk.identity.attributes() ?? [:]) as! [String : String]
+        return (SFMCSdk.mp.attributes() ?? [:]) as! [String : String]
     }
     
     /*
@@ -217,12 +217,12 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      */
     public func setTag(tag: String) -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_addTag(tag)
-        SFMCSdk.identity.addTag(tag)
+        SFMCSdk.mp.addTag(tag)
         return true
     }
     public func removeTag(tag: String) -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_removeTag(tag)
-        SFMCSdk.identity.removeTag(tag)
+        SFMCSdk.mp.removeTag(tag)
         return true
     }
     public func tags() -> [String] {
@@ -235,7 +235,7 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      */
     public func setupVerbose(status: Bool) -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_setDebugLoggingEnabled(status)
-        SFMCSdk.identity.setDebugLoggingEnabled(status)
+        SFMCSdk.mp.setDebugLoggingEnabled(status)
         return true
     }
     
@@ -244,18 +244,18 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      */
     public func pushEnabled() -> Bool {
         //return MarketingCloudSDK.sharedInstance().sfmc_pushEnabled()
-        return SFMCSdk.identity.pushEnabled()
+        return SFMCSdk.mp.pushEnabled()
     }
 
     public func setPushEnabled(status: Bool) -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_setPushEnabled(status)
-        return SFMCSdk.identity.setPushEnabled(status)
+        SFMCSdk.mp.setPushEnabled(status)
         return true
     }
 
     public func getPushToken() -> String? {
         //return MarketingCloudSDK.sharedInstance().sfmc_deviceToken()
-        return SFMCSdk.identity.deviceToken()
+        return SFMCSdk.mp.deviceToken()
     }
     
     /*
@@ -271,12 +271,12 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      */
     public func enableLocationWatching() -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_startWatchingLocation()
-        SFMCSdk.identity.startWatchingLocation()
+        SFMCSdk.mp.startWatchingLocation()
         return true;
     }
     public func disableLocationWatching() -> Bool {
         //MarketingCloudSDK.sharedInstance().sfmc_stopWatchingLocation()
-        SFMCSdk.identity.stopWatchingLocation()
+        SFMCSdk.mp.stopWatchingLocation()
         return true;
     }
 
