@@ -1,8 +1,9 @@
 import Flutter
-import UIKit 
+import UIKit
+import SFMCSDK
 import MarketingCloudSDK
 
-public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKURLHandlingDelegate, MarketingCloudSDKEventDelegate {
+public class SwiftSfmcFlutterPlugin: NSObject, URLHandlingDelegate, FlutterPlugin, InAppMessageEventDelegate {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sfmc_flutter", binaryMessenger: registrar.messenger())
         let instance = SwiftSfmcFlutterPlugin()
@@ -120,6 +121,16 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
                                 details: nil))
         }
     }
+
+    public func sfmc_handleURL(_ url: URL, type: String) {
+        // Very simply, send the URL returned from the MobilePush SDK to UIApplication to handle correctly.
+        UIApplication.shared.open(url,
+            options: [:],
+            completionHandler: {
+            (success) in
+            print("Open \(url): \(success)")
+            })
+    }
     
     public func setupSFMC(appId: String, accessToken: String, mid: String, sfmcURL: String, locationEnabled: Bool?, inboxEnabled: Bool?, analyticsEnabled: Bool?, delayRegistration: Bool?, onDone: (_ result: Bool, _ message: String?, _ code: Int?) -> Void) {
         //MarketingCloudSDK.sharedInstance().sfmc_tearDown()
@@ -147,9 +158,9 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
             .build()
         
         //MarketingCloudSDK.sharedInstance().sfmc_setURLHandlingDelegate(self)
-        // SFMCSdk.mp.setURLHandlingDelegate(self)
+        SFMCSdk.mp.setURLHandlingDelegate(self)
         //MarketingCloudSDK.sharedInstance().sfmc_setEventDelegate(self)
-        // SFMCSdk.mp.setEventDelegate(self)
+        SFMCSdk.mp.setEventDelegate(self)
 
         do {
             //try MarketingCloudSDK.sharedInstance().sfmc_configure(with:builder)
@@ -262,8 +273,8 @@ public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKU
      * SDKState Management
      */
     public func getSDKState() -> String {
-        return "TODO: getSDKState() Not implemented"
-        //return "SDK State = \(MarketingCloudSDK.sharedInstance().sfmc_getSDKState() ?? "SDK State is nil")"
+        let status = SFMCSdk.mp.getStatus()
+        return String(describing: status)
     }
     
     /*
