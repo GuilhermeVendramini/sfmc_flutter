@@ -120,26 +120,7 @@ class SfmcFlutterPlugin : FlutterPlugin, MethodCallHandler, ActivityAware {
                 setMarketingCloudServerUrl(sfmcURL)
                 setMid(mid)
                 setNotificationCustomizationOptions(
-                    NotificationCustomizationOptions.create { context, notificationMessage ->
-                        val builder = NotificationManager.getDefaultNotificationBuilder(
-                            context,
-                            notificationMessage,
-                            NotificationManager.createDefaultNotificationChannel(context),
-                            R.drawable.ic_notification
-                        )
-                        builder.setContentIntent(
-                        NotificationManager.redirectIntentForAnalytics(
-                            context, PendingIntent.getActivity(
-                                context,
-                                Random().nextInt(),
-                                Intent(Intent.ACTION_VIEW, Uri.parse(notificationMessage.url)),
-                                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-                            ), notificationMessage, true
-                        )
-                        )
-                        builder.color = ContextCompat.getColor(application, R.color.primary)
-                        builder.setAutoCancel(true)
-                    }
+                    NotificationCustomizationOptions.create(notificationIcon)
                 )
                 // Other configuration options
             }.build(context.applicationContext)
