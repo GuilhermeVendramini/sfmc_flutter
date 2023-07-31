@@ -123,13 +123,23 @@ public class SwiftSfmcFlutterPlugin: NSObject, URLHandlingDelegate, FlutterPlugi
     }
 
     public func sfmc_handleURL(_ url: URL, type: String) {
-        // Very simply, send the URL returned from the MobilePush SDK to UIApplication to handle correctly.
-        UIApplication.shared.open(url,
-            options: [:],
-            completionHandler: {
-            (success) in
-            print("Open \(url): \(success)")
-            })
+        if UIApplication.shared.canOpenURL(url) == true {
+            if #available(iOS 10.0, *) {
+                UIApplication.shared.open(url, options: [:], completionHandler: { success in
+                    if success {
+                        print("url \(url) opened successfully")
+                    } else {
+                        print("url \(url) could not be opened")
+                    }
+                })
+            } else {
+                if UIApplication.shared.openURL(url) == true {
+                    print("url \(url) opened successfully")
+                } else {
+                    print("url \(url) could not be opened")
+                }
+            }
+        }
     }
     
     public func setupSFMC(appId: String, accessToken: String, mid: String, sfmcURL: String, locationEnabled: Bool?, inboxEnabled: Bool?, analyticsEnabled: Bool?, delayRegistration: Bool?, onDone: (_ result: Bool, _ message: String?, _ code: Int?) -> Void) {
@@ -295,26 +305,25 @@ public class SwiftSfmcFlutterPlugin: NSObject, URLHandlingDelegate, FlutterPlugi
     /*
      * URL Handling
      */
-
-    public func sfmc_handle(_ url: URL, type: String) {
-        if UIApplication.shared.canOpenURL(url) == true {
-            if #available(iOS 10.0, *) {
-                UIApplication.shared.open(url, options: [:], completionHandler: { success in
-                    if success {
-                        print("url \(url) opened successfully")
-                    } else {
-                        print("url \(url) could not be opened")
-                    }
-                })
-            } else {
-                if UIApplication.shared.openURL(url) == true {
-                    print("url \(url) opened successfully")
-                } else {
-                    print("url \(url) could not be opened")
-                }
-            }
-        }
-    }
+    // public func sfmc_handle(_ url: URL, type: String) {
+    //     if UIApplication.shared.canOpenURL(url) == true {
+    //         if #available(iOS 10.0, *) {
+    //             UIApplication.shared.open(url, options: [:], completionHandler: { success in
+    //                 if success {
+    //                     print("url \(url) opened successfully")
+    //                 } else {
+    //                     print("url \(url) could not be opened")
+    //                 }
+    //             })
+    //         } else {
+    //             if UIApplication.shared.openURL(url) == true {
+    //                 print("url \(url) opened successfully")
+    //             } else {
+    //                 print("url \(url) could not be opened")
+    //             }
+    //         }
+    //     }
+    // }
     
     /*
      * IN-APP Messaging
