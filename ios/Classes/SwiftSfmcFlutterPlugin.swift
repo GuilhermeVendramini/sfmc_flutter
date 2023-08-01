@@ -3,7 +3,7 @@ import UIKit
 import SFMCSDK
 import MarketingCloudSDK
 
-public class SwiftSfmcFlutterPlugin: NSObject, URLHandlingDelegate, FlutterPlugin, InAppMessageEventDelegate {
+public class SwiftSfmcFlutterPlugin: NSObject, FlutterPlugin, MarketingCloudSDKURLHandlingDelegate, MarketingCloudSDKEventDelegate {
     public static func register(with registrar: FlutterPluginRegistrar) {
         let channel = FlutterMethodChannel(name: "sfmc_flutter", binaryMessenger: registrar.messenger())
         let instance = SwiftSfmcFlutterPlugin()
@@ -285,7 +285,7 @@ public class SwiftSfmcFlutterPlugin: NSObject, URLHandlingDelegate, FlutterPlugi
     /*
      * URL Handling
      */
-    public func sfmc_handleURL(_ url: URL, type: String) {
+    public func sfmc_handle(_ url: URL, type: String) {
         if UIApplication.shared.canOpenURL(url) == true {
             if #available(iOS 10.0, *) {
                 UIApplication.shared.open(url, options: [:], completionHandler: { success in
